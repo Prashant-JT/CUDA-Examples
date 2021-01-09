@@ -16,7 +16,7 @@ function cuatro
     
     plot(x, y);  
     grid();
-    xlabel('Tamaño de la matriz cuadrada');
+    xlabel('TamaÃ±o de la matriz cuadrada');
     ylabel('Tiempo empleado en segundos');
     title('Producto escalar de matrices cuadradas');
 end
