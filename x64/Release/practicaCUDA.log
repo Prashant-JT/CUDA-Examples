@@ -7,16 +7,37 @@ C:/Users/remoto/source/repos/practicaCUDA/kernel.cu(253): warning : transfer of 
 C:/Users/remoto/source/repos/practicaCUDA/kernel.cu(259): warning : transfer of control bypasses initialization of:
 C:/Users/remoto/source/repos/practicaCUDA/kernel.cu(266): warning : transfer of control bypasses initialization of:
 C:/Users/remoto/source/repos/practicaCUDA/kernel.cu(272): warning : transfer of control bypasses initialization of:
+C:/Users/remoto/source/repos/practicaCUDA/kernel.cu(321): warning : transfer of control bypasses initialization of:
+C:/Users/remoto/source/repos/practicaCUDA/kernel.cu(328): warning : transfer of control bypasses initialization of:
+C:/Users/remoto/source/repos/practicaCUDA/kernel.cu(334): warning : transfer of control bypasses initialization of:
+C:/Users/remoto/source/repos/practicaCUDA/kernel.cu(340): warning : transfer of control bypasses initialization of:
+C:/Users/remoto/source/repos/practicaCUDA/kernel.cu(351): warning : transfer of control bypasses initialization of:
+C:/Users/remoto/source/repos/practicaCUDA/kernel.cu(357): warning : transfer of control bypasses initialization of:
+C:/Users/remoto/source/repos/practicaCUDA/kernel.cu(375): warning : transfer of control bypasses initialization of:
+C:/Users/remoto/source/repos/practicaCUDA/kernel.cu(383): warning : transfer of control bypasses initialization of:
+C:/Users/remoto/source/repos/practicaCUDA/kernel.cu(390): warning : transfer of control bypasses initialization of:
 C:/Users/remoto/source/repos/practicaCUDA/kernel.cu(240): warning : transfer of control bypasses initialization of:
 C:/Users/remoto/source/repos/practicaCUDA/kernel.cu(247): warning : transfer of control bypasses initialization of:
 C:/Users/remoto/source/repos/practicaCUDA/kernel.cu(253): warning : transfer of control bypasses initialization of:
 C:/Users/remoto/source/repos/practicaCUDA/kernel.cu(259): warning : transfer of control bypasses initialization of:
 C:/Users/remoto/source/repos/practicaCUDA/kernel.cu(266): warning : transfer of control bypasses initialization of:
 C:/Users/remoto/source/repos/practicaCUDA/kernel.cu(272): warning : transfer of control bypasses initialization of:
+C:/Users/remoto/source/repos/practicaCUDA/kernel.cu(321): warning : transfer of control bypasses initialization of:
+C:/Users/remoto/source/repos/practicaCUDA/kernel.cu(328): warning : transfer of control bypasses initialization of:
+C:/Users/remoto/source/repos/practicaCUDA/kernel.cu(334): warning : transfer of control bypasses initialization of:
+C:/Users/remoto/source/repos/practicaCUDA/kernel.cu(340): warning : transfer of control bypasses initialization of:
+C:/Users/remoto/source/repos/practicaCUDA/kernel.cu(351): warning : transfer of control bypasses initialization of:
+C:/Users/remoto/source/repos/practicaCUDA/kernel.cu(357): warning : transfer of control bypasses initialization of:
+C:/Users/remoto/source/repos/practicaCUDA/kernel.cu(375): warning : transfer of control bypasses initialization of:
+C:/Users/remoto/source/repos/practicaCUDA/kernel.cu(383): warning : transfer of control bypasses initialization of:
+C:/Users/remoto/source/repos/practicaCUDA/kernel.cu(390): warning : transfer of control bypasses initialization of:
   kernel.cu
 C:/Users/remoto/source/repos/practicaCUDA/kernel.cu(301): warning C4533: la inicialización de 'threadsPerBlock' se omite en 'goto Error'
   C:/Users/remoto/source/repos/practicaCUDA/kernel.cu(276): note: vea la declaración de 'threadsPerBlock'
   C:/Users/remoto/source/repos/practicaCUDA/kernel.cu(301): note: vea la declaración de 'Error'
+C:/Users/remoto/source/repos/practicaCUDA/kernel.cu(399): warning C4533: la inicialización de 'threadsPerBlock' se omite en 'goto Error'
+  C:/Users/remoto/source/repos/practicaCUDA/kernel.cu(363): note: vea la declaración de 'threadsPerBlock'
+  C:/Users/remoto/source/repos/practicaCUDA/kernel.cu(399): note: vea la declaración de 'Error'
      Creando biblioteca C:\Users\remoto\source\repos\practicaCUDA\x64\Release\practicaCUDA.lib y objeto C:\Users\remoto\source\repos\practicaCUDA\x64\Release\practicaCUDA.exp
   LINK : se especificó /LTCG pero no se requiere generación de código; quite /LTCG de la línea de comandos de vínculo para mejorar el rendimiento del vinculador
   practicaCUDA.vcxproj -> C:\Users\remoto\source\repos\practicaCUDA\x64\Release\practicaCUDA.exe
