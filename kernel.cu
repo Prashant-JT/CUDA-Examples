@@ -45,18 +45,14 @@ __global__ void multKernel2(double* c, double* a, double* b)
 
     int l = blockIdx.x;
     int m = blockIdx.y;
-    int n = blockIdx.y;
+    int n = blockIdx.z;
 
     printf("Indice del hilo: (%d, %d, %d) | Indice del bloque: (%d, %d, %d) | Calculando el producto: {%f} * {%f}\n", threadIdx.x, threadIdx.y, threadIdx.z, l, m, n, a[i], b[i]);
-    //printf("Calculando el producto: {%f} * {%f}\n", a[i], b[i]);
     c[i] = a[i] * b[i];
 }
 
 __global__ void MatrixMultiplicationCuda(double* c, double* a, double* b, int N)
 {
-    //int i = threadIdx.x; 
-    //int j = threadIdx.y;
-
     int i = blockIdx.x * blockDim.x + threadIdx.x;
     int j = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -65,6 +61,24 @@ __global__ void MatrixMultiplicationCuda(double* c, double* a, double* b, int N)
         sum += a[i * N + k] * b[k * N + j];
     }
     c[i * N + j] = sum;
+}
+
+__global__ void MatrixMultiplicationCuda1(double* c, double* a, double* b, int N)
+{
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    int j = blockIdx.y * blockDim.y + threadIdx.y;
+
+    int l = blockIdx.x;
+    int m = blockIdx.y;
+    int n = blockIdx.z;
+
+    double sum = 0;
+    for (int k = 0; k < N; k++) {
+        sum += a[i * N + k] * b[k * N + j];
+    }
+    c[i * N + j] = sum;
+    //printf("Indice del hilo: (%d, %d, %d) | Indice del bloque: (%d, %d, %d) | Calculando el producto: {%f} * {%f}\n", threadIdx.x, threadIdx.y, threadIdx.z, l, m, n, a[i], b[i]);
+
 }
 
 cudaError_t multWithCuda1(double* c, double* a, double* b, unsigned int size)
@@ -306,7 +320,7 @@ Error:
     return cudaStatus;
 }
 
-cudaError_t multMatrixwithCuda2(double* c, double* a, double* b, unsigned int size)
+cudaError_t multMatrixwithCuda3(double* c, double* a, double* b, unsigned int size)
 {
     double* dev_a = 0;
     double* dev_b = 0;
@@ -403,6 +417,105 @@ Error:
     return cudaStatus;
 }
 
+cudaError_t multMatrixwithCuda2(double* c, double* a, double* b, unsigned int size)
+{
+    double* dev_a = 0;
+    double* dev_b = 0;
+    double* dev_c = 0;
+    int N = size * size;
+    cudaError_t cudaStatus;
+
+    // Choose which GPU to run on, change this on a multi-GPU system.
+    cudaStatus = cudaSetDevice(0);
+    if (cudaStatus != cudaSuccess) {
+        fprintf(stderr, "cudaSetDevice failed!  Do you have a CUDA-capable GPU installed?");
+        goto Error;
+    }
+
+    // Allocate GPU buffers for three vectors (two input, one output)    .
+    cudaStatus = cudaMalloc((void**)&dev_c, N * sizeof(double));
+    if (cudaStatus != cudaSuccess) {
+        fprintf(stderr, "cudaMalloc failed!");
+        goto Error;
+    }
+
+    cudaStatus = cudaMalloc((void**)&dev_a, N * sizeof(double));
+    if (cudaStatus != cudaSuccess) {
+        fprintf(stderr, "cudaMalloc failed!");
+        goto Error;
+    }
+
+    cudaStatus = cudaMalloc((void**)&dev_b, N * sizeof(double));
+    if (cudaStatus != cudaSuccess) {
+        fprintf(stderr, "cudaMalloc failed!");
+        goto Error;
+    }
+
+    cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+
+    // Copy input vectors from host memory to GPU buffers.
+    cudaStatus = cudaMemcpy(dev_a, a, N * sizeof(double), cudaMemcpyHostToDevice);
+    if (cudaStatus != cudaSuccess) {
+        fprintf(stderr, "cudaMemcpy failed!");
+        goto Error;
+    }
+
+    cudaStatus = cudaMemcpy(dev_b, b, N * sizeof(double), cudaMemcpyHostToDevice);
+    if (cudaStatus != cudaSuccess) {
+        fprintf(stderr, "cudaMemcpy failed!");
+        goto Error;
+    }
+
+    cudaEventRecord(start);
+
+    // Launch a kernel on the GPU with one thread for each element.
+    dim3 dimGrid(32, 32);
+    dim3 dimB(1, 2, 1);
+    //dim3 threadsPerBlock(1, 2);
+    //for (int i = 0; i < 10; i++) {
+    MatrixMultiplicationCuda1 << <dimB, dimGrid >> > (dev_c, dev_a, dev_b, size);
+    //}
+
+    cudaEventRecord(stop);
+
+    // Check for any errors launching the kernel
+    cudaStatus = cudaGetLastError();
+    if (cudaStatus != cudaSuccess) {
+        fprintf(stderr, "MatrixMultiplicationCuda1 launch failed: %s\n", cudaGetErrorString(cudaStatus));
+        goto Error;
+    }
+
+    // cudaDeviceSynchronize waits for the kernel to finish, and returns
+    // any errors encountered during the launch.
+    cudaStatus = cudaDeviceSynchronize();
+    if (cudaStatus != cudaSuccess) {
+        fprintf(stderr, "cudaDeviceSynchronize returned error code %d after launching addKernel!\n", cudaStatus);
+        goto Error;
+    }
+
+    // Copy output vector from GPU buffer to host memory.
+    cudaStatus = cudaMemcpy(c, dev_c, N * sizeof(double), cudaMemcpyDeviceToHost);
+    if (cudaStatus != cudaSuccess) {
+        fprintf(stderr, "cudaMemcpy failed!");
+        goto Error;
+    }
+
+    cudaEventSynchronize(stop);
+    float milliseconds = 0;
+    cudaEventElapsedTime(&milliseconds, start, stop);
+    float seconds = milliseconds / 1000;
+    printf("Tiempo en CUDA: %f\n", seconds / 10);
+
+Error:
+    cudaFree(dev_c);
+    cudaFree(dev_a);
+    cudaFree(dev_b);
+
+    return cudaStatus;
+}
+
 int funcion1() 
 {
     const int arraySize = 100;
@@ -479,7 +592,7 @@ int funcion2()
 
 int funcion3()
 {
-    const int N = 3;
+    const int N = 64;
 
     double a[N * N];
     double b[N * N];
@@ -501,12 +614,18 @@ int funcion3()
         }
     }
 
-    printf("Matriz A (suma de su numero de fila mas su numero de columna):\n");
-    printMatrix(a, 3, 3);
-    printf("Matriz B (resta de su numero de fila menos su numero de columna):\n");
-    printMatrix(b, 3, 3);
-    printf("Resultado de la multiplicacion de A * B:\n");
-    printMatrix(c, 3, 3);
+    //printf("Matriz A (suma de su numero de fila mas su numero de columna):\n");
+    //printMatrix(a, 3, 3);
+    //printf("Matriz B (resta de su numero de fila menos su numero de columna):\n");
+    //printMatrix(b, 3, 3);
+    double diagonal[N * N];
+    printf("Resultado de la multiplicacion de A * B (sequencial):\n");
+    int j = 0;
+    for (int i = 0; i < N * N; i = i + N) {
+        printf("%f\n", c[i + j]);
+        j++;
+    }
+    //printMatrix(c, 3, 3);
 
     return 0;
 }
@@ -622,15 +741,61 @@ int funcion6()
     return 0;
 }
 
+int funcion7()
+{
+    const int N = 64;
+
+    double a[N * N];
+    double b[N * N];
+    double c[N * N];
+
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            a[i * N + j] = i + j;
+            b[i * N + j] = i - j;
+        }
+    }
+
+    cudaError_t cudaStatus = multMatrixwithCuda2(c, a, b, N);
+    if (cudaStatus != cudaSuccess) {
+        fprintf(stderr, "multMatrixwithCuda2 failed!");
+        return 1;
+    }
+
+    //printf("Matriz A (suma de su numero de fila mas su numero de columna):\n");
+    //printMatrix(a, N, N);
+    //printf("Matriz B (resta de su numero de fila menos su numero de columna):\n");
+    //printMatrix(b, N, N);
+    //printMatrix(c, N, N);
+    printf("Resultado de la multiplicacion de A * B (CUDA):\n");
+    int j = 0;
+    for (int i = 0; i < N * N; i = i + N) {
+        printf("%f\n", c[i + j]);
+        j++;
+    }
+    //printMatrix(c, N, N);
+
+    // cudaDeviceReset must be called before exiting in order for profiling and
+    // tracing tools such as Nsight and Visual Profiler to show complete traces.
+    cudaStatus = cudaDeviceReset();
+    if (cudaStatus != cudaSuccess) {
+        fprintf(stderr, "cudaDeviceReset failed!");
+        return 1;
+    }
+
+    return 0;
+}
+
 int main()
 {
     int error = 0;
     //error = funcion1();
     //error = funcion2();
-    //error = funcion3();
+    error = funcion3();
     //error = funcion4();
     //error = funcion5();
-    error = funcion6();
+    //error = funcion6();
+    error = funcion7();
 
     return error;
 }
