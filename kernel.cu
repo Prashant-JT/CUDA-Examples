@@ -40,7 +40,7 @@ __global__ void multKernel1(double* c, double* a, double* b)
 
 __global__ void multKernel2(double* c, double* a, double* b)
 {
-    int i = blockIdx.x * blockDim.x + threadIdx.x; 
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
     int j = blockIdx.y * blockDim.y + threadIdx.y;
 
     int l = blockIdx.x;
@@ -67,10 +67,6 @@ __global__ void MatrixMultiplicationCuda1(double* c, double* a, double* b, int N
 {
     int i = blockIdx.x * blockDim.x + threadIdx.x;
     int j = blockIdx.y * blockDim.y + threadIdx.y;
-
-    int l = blockIdx.x;
-    int m = blockIdx.y;
-    int n = blockIdx.z;
 
     double sum = 0;
     for (int k = 0; k < N; k++) {
@@ -207,7 +203,7 @@ cudaError_t multWithCuda2(double* c, double* a, double* b, unsigned int size)
     }
 
     // Launch a kernel on the GPU with one thread for each element.
-    multKernel2 << <10, size/10 >> > (dev_c, dev_a, dev_b);
+    multKernel2 << <10, size / 10 >> > (dev_c, dev_a, dev_b);
 
     // Check for any errors launching the kernel
     cudaStatus = cudaGetLastError();
@@ -288,7 +284,7 @@ cudaError_t multMatrixwithCuda(double* c, double* a, double* b, unsigned int siz
 
     // Launch a kernel on the GPU with one thread for each element.
     dim3 threadsPerBlock(size, size);
-    MatrixMultiplicationCuda <<<1, threadsPerBlock>>> (dev_c, dev_a, dev_b, size);
+    MatrixMultiplicationCuda << <1, threadsPerBlock >> > (dev_c, dev_a, dev_b, size);
 
     // Check for any errors launching the kernel
     cudaStatus = cudaGetLastError();
@@ -403,8 +399,8 @@ cudaError_t multMatrixwithCuda3(double* c, double* a, double* b, unsigned int si
         goto Error;
     }
 
-    cudaEventSynchronize(stop); 
-    float milliseconds = 0; 
+    cudaEventSynchronize(stop);
+    float milliseconds = 0;
     cudaEventElapsedTime(&milliseconds, start, stop);
     float seconds = milliseconds / 1000;
     printf("Tiempo en CUDA: %f\n", seconds / 10);
@@ -451,10 +447,6 @@ cudaError_t multMatrixwithCuda2(double* c, double* a, double* b, unsigned int si
         goto Error;
     }
 
-    cudaEvent_t start, stop;
-    cudaEventCreate(&start);
-    cudaEventCreate(&stop);
-
     // Copy input vectors from host memory to GPU buffers.
     cudaStatus = cudaMemcpy(dev_a, a, N * sizeof(double), cudaMemcpyHostToDevice);
     if (cudaStatus != cudaSuccess) {
@@ -468,17 +460,11 @@ cudaError_t multMatrixwithCuda2(double* c, double* a, double* b, unsigned int si
         goto Error;
     }
 
-    cudaEventRecord(start);
-
     // Launch a kernel on the GPU with one thread for each element.
-    dim3 dimGrid(32, 32);
-    dim3 dimB(1, 2, 1);
-    //dim3 threadsPerBlock(1, 2);
-    //for (int i = 0; i < 10; i++) {
-    MatrixMultiplicationCuda1 << <dimB, dimGrid >> > (dev_c, dev_a, dev_b, size);
-    //}
-
-    cudaEventRecord(stop);
+    //printf("%d\n", size);
+    dim3 dimGrid(size/32, size/32);
+    dim3 dimBlock(32, 32);
+    MatrixMultiplicationCuda1 << <dimGrid, dimBlock >> > (dev_c, dev_a, dev_b, size);
 
     // Check for any errors launching the kernel
     cudaStatus = cudaGetLastError();
@@ -502,12 +488,6 @@ cudaError_t multMatrixwithCuda2(double* c, double* a, double* b, unsigned int si
         goto Error;
     }
 
-    cudaEventSynchronize(stop);
-    float milliseconds = 0;
-    cudaEventElapsedTime(&milliseconds, start, stop);
-    float seconds = milliseconds / 1000;
-    printf("Tiempo en CUDA: %f\n", seconds / 10);
-
 Error:
     cudaFree(dev_c);
     cudaFree(dev_a);
@@ -516,7 +496,7 @@ Error:
     return cudaStatus;
 }
 
-int funcion1() 
+int funcion1()
 {
     const int arraySize = 100;
     double a[arraySize];
@@ -553,7 +533,7 @@ int funcion1()
     return 0;
 }
 
-int funcion2() 
+int funcion2()
 {
     const int arraySize = 100;
     double a[arraySize];
@@ -571,7 +551,7 @@ int funcion2()
         fprintf(stderr, "multWithCuda failed!");
         return 1;
     }
-    
+
     double prod = 0;
     for (int i = 0; i < arraySize; i++) {
         prod += c[i];
@@ -592,7 +572,7 @@ int funcion2()
 
 int funcion3()
 {
-    const int N = 64;
+    const int N = 32;
 
     double a[N * N];
     double b[N * N];
@@ -615,28 +595,27 @@ int funcion3()
     }
 
     //printf("Matriz A (suma de su numero de fila mas su numero de columna):\n");
-    //printMatrix(a, 3, 3);
+    //printMatrix(a, N, N);
     //printf("Matriz B (resta de su numero de fila menos su numero de columna):\n");
-    //printMatrix(b, 3, 3);
-    double diagonal[N * N];
+    //printMatrix(b, N, N);
     printf("Resultado de la multiplicacion de A * B (sequencial):\n");
     int j = 0;
     for (int i = 0; i < N * N; i = i + N) {
         printf("%f\n", c[i + j]);
         j++;
     }
-    //printMatrix(c, 3, 3);
+    //printMatrix(c, N, N);
 
     return 0;
 }
 
 int funcion4()
 {
-    const int N = 4;
+    const int N = 896;
 
-    double a[N * N];
-    double b[N * N];
-    double c[N * N];
+    double* a = new double[N * N];
+    double* b = new double[N * N];
+    double* c = new double[N * N];
 
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < N; j++) {
@@ -646,19 +625,25 @@ int funcion4()
     }
 
     clock_t start, stop;
-    start = clock(); 
-    for (int i = 0; i < 10000; i++) {
+    start = clock();
+    for (int i = 0; i < 10; i++) {
         MatrixMultiplication(a, b, c, N);
     }
     stop = clock();
 
-    printf("Matriz A (suma de su numero de fila mas su numero de columna):\n");
-    printMatrix(a, N, N);
-    printf("Matriz B (resta de su numero de fila menos su numero de columna):\n");
-    printMatrix(b, N, N);
-    printf("Resultado de la multiplicacion de A * B: \n");
-    printMatrix(c, N, N);
-    printf("Tiempo secuencial: %4.8f segundos\n", (double)(stop - start) / CLOCKS_PER_SEC / 10000);
+    //printf("Matriz A (suma de su numero de fila mas su numero de columna):\n");
+    //printMatrix(a, N, N);
+    //printf("Matriz B (resta de su numero de fila menos su numero de columna):\n");
+    //printMatrix(b, N, N);
+    //printf("Resultado de la multiplicacion de A * B: \n");
+    printf("Resultado de la multiplicacion de A * B (sequencial):\n");
+    int j = 0;
+    for (int i = 0; i < N * N; i = i + N) {
+        printf("%f\n", c[i + j]);
+        j++;
+    }
+    //printMatrix(c, N, N);
+    printf("Tiempo secuencial: %4.8f segundos\n", (double)(stop - start) / CLOCKS_PER_SEC / 10);
 
     return 0;
 }
@@ -704,7 +689,7 @@ int funcion5()
 
 int funcion6()
 {
-    const int N = 4;
+    const int N = 8;
 
     double a[N * N];
     double b[N * N];
@@ -743,11 +728,12 @@ int funcion6()
 
 int funcion7()
 {
-    const int N = 64;
+    const int N = 896;
 
-    double a[N * N];
-    double b[N * N];
-    double c[N * N];
+    double* a = new double [N * N];
+    double* b = new double [N * N];
+    double* c = new double [N * N];
+
 
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < N; j++) {
@@ -756,24 +742,27 @@ int funcion7()
         }
     }
 
-    cudaError_t cudaStatus = multMatrixwithCuda2(c, a, b, N);
+    cudaError_t cudaStatus;
+    cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+
+    cudaEventRecord(start);
+    for (int i = 0; i < 10; i++) {
+        cudaStatus = multMatrixwithCuda2(c, a, b, N);
+    }
+    cudaEventRecord(stop);
+
+    cudaEventSynchronize(stop);
+    float milliseconds = 0;
+    cudaEventElapsedTime(&milliseconds, start, stop);
+    float seconds = milliseconds / 1000;
+    printf("Tiempo en CUDA: %f segundos\n", seconds / 10);
+
     if (cudaStatus != cudaSuccess) {
         fprintf(stderr, "multMatrixwithCuda2 failed!");
         return 1;
     }
-
-    //printf("Matriz A (suma de su numero de fila mas su numero de columna):\n");
-    //printMatrix(a, N, N);
-    //printf("Matriz B (resta de su numero de fila menos su numero de columna):\n");
-    //printMatrix(b, N, N);
-    //printMatrix(c, N, N);
-    printf("Resultado de la multiplicacion de A * B (CUDA):\n");
-    int j = 0;
-    for (int i = 0; i < N * N; i = i + N) {
-        printf("%f\n", c[i + j]);
-        j++;
-    }
-    //printMatrix(c, N, N);
 
     // cudaDeviceReset must be called before exiting in order for profiling and
     // tracing tools such as Nsight and Visual Profiler to show complete traces.
@@ -783,6 +772,19 @@ int funcion7()
         return 1;
     }
 
+    //printf("Matriz A (suma de su numero de fila mas su numero de columna):\n");
+    //printMatrix(a, N, N);
+    //printf("Matriz B (resta de su numero de fila menos su numero de columna):\n");
+    //printMatrix(b, N, N);
+    //printMatrix(c, N, N);
+    printf("%s\n", "Resultado de la multiplicacion de A * B(CUDA) :");
+    int j = 0;
+    for (int i = 0; i < N * N; i = i + N) {
+        printf("%f\n", c[i + j]);
+        j++;
+    }
+    //printMatrix(c, N, N);
+
     return 0;
 }
 
@@ -791,8 +793,8 @@ int main()
     int error = 0;
     //error = funcion1();
     //error = funcion2();
-    error = funcion3();
-    //error = funcion4();
+    //error = funcion3();
+    error = funcion4();
     //error = funcion5();
     //error = funcion6();
     error = funcion7();
