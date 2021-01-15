@@ -2,6 +2,7 @@
 #include "device_launch_parameters.h"
 #include<time.h>
 #include <stdio.h>
+#include <math.h>
 
 void printMatrix(double* mat, int m, int n) {
     printf("\t\t");
@@ -239,10 +240,9 @@ cudaError_t multMatrixwithCuda(double* c, double* a, double* b, unsigned int siz
     double* dev_b = 0;
     double* dev_c = 0;
     int N = size * size;
-    cudaError_t cudaStatus;
 
     // Choose which GPU to run on, change this on a multi-GPU system.
-    cudaStatus = cudaSetDevice(0);
+    cudaError_t cudaStatus = cudaSetDevice(0);
     if (cudaStatus != cudaSuccess) {
         fprintf(stderr, "cudaSetDevice failed!  Do you have a CUDA-capable GPU installed?");
         goto Error;
@@ -306,107 +306,10 @@ cudaError_t multMatrixwithCuda(double* c, double* a, double* b, unsigned int siz
         goto Error;
     }
 
-Error:
-    cudaFree(dev_c);
-    cudaFree(dev_a);
-    cudaFree(dev_b);
-
-    return cudaStatus;
-}
-
-cudaError_t multMatrixwithCuda3(double* c, double* a, double* b, unsigned int size)
-{
-    double* dev_a = 0;
-    double* dev_b = 0;
-    double* dev_c = 0;
-    int N = size * size;
-    cudaError_t cudaStatus;
-
-    // Choose which GPU to run on, change this on a multi-GPU system.
-    cudaStatus = cudaSetDevice(0);
-    if (cudaStatus != cudaSuccess) {
-        fprintf(stderr, "cudaSetDevice failed!  Do you have a CUDA-capable GPU installed?");
-        goto Error;
-    }
-
-    // Allocate GPU buffers for three vectors (two input, one output)    .
-    cudaStatus = cudaMalloc((void**)&dev_c, N * sizeof(double));
-    if (cudaStatus != cudaSuccess) {
-        fprintf(stderr, "cudaMalloc failed!");
-        goto Error;
-    }
-
-    cudaStatus = cudaMalloc((void**)&dev_a, N * sizeof(double));
-    if (cudaStatus != cudaSuccess) {
-        fprintf(stderr, "cudaMalloc failed!");
-        goto Error;
-    }
-
-    cudaStatus = cudaMalloc((void**)&dev_b, N * sizeof(double));
-    if (cudaStatus != cudaSuccess) {
-        fprintf(stderr, "cudaMalloc failed!");
-        goto Error;
-    }
-
-    cudaEvent_t start, stop;
-    cudaEventCreate(&start);
-    cudaEventCreate(&stop);
-
-    // Copy input vectors from host memory to GPU buffers.
-    cudaStatus = cudaMemcpy(dev_a, a, N * sizeof(double), cudaMemcpyHostToDevice);
-    if (cudaStatus != cudaSuccess) {
-        fprintf(stderr, "cudaMemcpy failed!");
-        goto Error;
-    }
-
-    cudaStatus = cudaMemcpy(dev_b, b, N * sizeof(double), cudaMemcpyHostToDevice);
-    if (cudaStatus != cudaSuccess) {
-        fprintf(stderr, "cudaMemcpy failed!");
-        goto Error;
-    }
-
-    cudaEventRecord(start);
-
-    // Launch a kernel on the GPU with one thread for each element.
-    dim3 threadsPerBlock(size, size);
-    for (int i = 0; i < 10; i++) {
-        MatrixMultiplicationCuda << <1, threadsPerBlock >> > (dev_c, dev_a, dev_b, size);
-    }
-
-    cudaEventRecord(stop);
-
-    // Check for any errors launching the kernel
-    cudaStatus = cudaGetLastError();
-    if (cudaStatus != cudaSuccess) {
-        fprintf(stderr, "MatrixMultiplicationCuda launch failed: %s\n", cudaGetErrorString(cudaStatus));
-        goto Error;
-    }
-
-    // cudaDeviceSynchronize waits for the kernel to finish, and returns
-    // any errors encountered during the launch.
-    cudaStatus = cudaDeviceSynchronize();
-    if (cudaStatus != cudaSuccess) {
-        fprintf(stderr, "cudaDeviceSynchronize returned error code %d after launching addKernel!\n", cudaStatus);
-        goto Error;
-    }
-
-    // Copy output vector from GPU buffer to host memory.
-    cudaStatus = cudaMemcpy(c, dev_c, N * sizeof(double), cudaMemcpyDeviceToHost);
-    if (cudaStatus != cudaSuccess) {
-        fprintf(stderr, "cudaMemcpy failed!");
-        goto Error;
-    }
-
-    cudaEventSynchronize(stop);
-    float milliseconds = 0;
-    cudaEventElapsedTime(&milliseconds, start, stop);
-    float seconds = milliseconds / 1000;
-    printf("Tiempo en CUDA: %f\n", seconds / 10);
-
-Error:
-    cudaFree(dev_c);
-    cudaFree(dev_a);
-    cudaFree(dev_b);
+    Error:
+        cudaFree(dev_c);
+        cudaFree(dev_a);
+        cudaFree(dev_b);
 
     return cudaStatus;
 }
@@ -606,10 +509,8 @@ int funcion3()
     return 0;
 }
 
-int funcion4()
+int funcion4(int N)
 {
-    const int N = 896;
-
     double* a = new double[N * N];
     double* b = new double[N * N];
     double* c = new double[N * N];
@@ -686,8 +587,7 @@ int funcion5()
 
 int funcion6()
 {
-    const int N = 8;
-
+    const int N = 1;
     double a[N * N];
     double b[N * N];
     double c[N * N];
@@ -699,18 +599,36 @@ int funcion6()
         }
     }
 
-    cudaError_t cudaStatus = multMatrixwithCuda2(c, a, b, N);
+    cudaError_t cudaStatus;
+    cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+
+    cudaEventRecord(start);
+    for (int i = 0; i < 10; i++) {
+        cudaStatus = multMatrixwithCuda(c, a, b, N);
+    }
+    cudaEventRecord(stop);
+
+    cudaEventSynchronize(stop);
+    float milliseconds = 0;
+    cudaEventElapsedTime(&milliseconds, start, stop);
+    float seconds = milliseconds / 1000;
+    printf("Tiempo en CUDA: %f segundos\n", seconds / 10);
+
     if (cudaStatus != cudaSuccess) {
         fprintf(stderr, "multWithCuda failed!");
         return 1;
     }
 
+    /*
     printf("Matriz A (suma de su numero de fila mas su numero de columna):\n");
     printMatrix(a, N, N);
     printf("Matriz B (resta de su numero de fila menos su numero de columna):\n");
     printMatrix(b, N, N);
     printf("Resultado de la multiplicacion de A * B:\n");
     printMatrix(c, N, N);
+    */
 
     // cudaDeviceReset must be called before exiting in order for profiling and
     // tracing tools such as Nsight and Visual Profiler to show complete traces.
@@ -723,10 +641,8 @@ int funcion6()
     return 0;
 }
 
-int funcion7()
+int funcion7(int N)
 {
-    const int N = 896;
-
     double* a = new double [N * N];
     double* b = new double [N * N];
     double* c = new double [N * N];
@@ -788,13 +704,19 @@ int funcion7()
 int main()
 {
     int error = 0;
-    //error = funcion1();
-    //error = funcion2();
-    //error = funcion3();
-    error = funcion4();
-    //error = funcion5();
-    //error = funcion6();
-    error = funcion7();
-
+    int N = 128;
+    /*
+    for (int i = 10; i < 11; i++) {
+        N = pow(2, i);
+        //error = funcion1();
+        //error = funcion2();
+        //error = funcion3();
+        printf("Tiempo para N=%d\n", N);
+        error = funcion4(N);
+        //error = funcion5();
+        //error = funcion6();
+        error = funcion7(N);
+    }
+    */
     return error;
 }

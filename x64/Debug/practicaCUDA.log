@@ -1,0 +1,39 @@
+﻿  Compiling CUDA source file kernel.cu...
+  
+  C:\Users\remoto\Downloads\MNC_CUDA-master\MNC_CUDA-master>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1\bin\nvcc.exe" -gencode=arch=compute_35,code=\"sm_35,compute_35\" --use-local-env -ccbin "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Tools\MSVC\14.24.28314\bin\HostX86\x64" -x cu  -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1\include"  -G   --keep-dir x64\Debug -maxrregcount=0  --machine 64 --compile -cudart static  -g   -DWIN32 -DWIN64 -D_DEBUG -D_CONSOLE -D_MBCS -Xcompiler "/EHsc /W3 /nologo /Od /Fdx64\Debug\vc142.pdb /FS /Zi /RTC1 /MDd " -o x64\Debug\kernel.cu.obj "C:\Users\remoto\Downloads\MNC_CUDA-master\MNC_CUDA-master\kernel.cu" 
+C:/Users/remoto/Downloads/MNC_CUDA-master/MNC_CUDA-master/kernel.cu(45): warning : variable "j" was declared but never referenced
+C:/Users/remoto/Downloads/MNC_CUDA-master/MNC_CUDA-master/kernel.cu(248): warning : transfer of control bypasses initialization of:
+C:/Users/remoto/Downloads/MNC_CUDA-master/MNC_CUDA-master/kernel.cu(255): warning : transfer of control bypasses initialization of:
+C:/Users/remoto/Downloads/MNC_CUDA-master/MNC_CUDA-master/kernel.cu(261): warning : transfer of control bypasses initialization of:
+C:/Users/remoto/Downloads/MNC_CUDA-master/MNC_CUDA-master/kernel.cu(267): warning : transfer of control bypasses initialization of:
+C:/Users/remoto/Downloads/MNC_CUDA-master/MNC_CUDA-master/kernel.cu(274): warning : transfer of control bypasses initialization of:
+C:/Users/remoto/Downloads/MNC_CUDA-master/MNC_CUDA-master/kernel.cu(280): warning : transfer of control bypasses initialization of:
+C:/Users/remoto/Downloads/MNC_CUDA-master/MNC_CUDA-master/kernel.cu(328): warning : transfer of control bypasses initialization of:
+C:/Users/remoto/Downloads/MNC_CUDA-master/MNC_CUDA-master/kernel.cu(335): warning : transfer of control bypasses initialization of:
+C:/Users/remoto/Downloads/MNC_CUDA-master/MNC_CUDA-master/kernel.cu(341): warning : transfer of control bypasses initialization of:
+C:/Users/remoto/Downloads/MNC_CUDA-master/MNC_CUDA-master/kernel.cu(347): warning : transfer of control bypasses initialization of:
+C:/Users/remoto/Downloads/MNC_CUDA-master/MNC_CUDA-master/kernel.cu(354): warning : transfer of control bypasses initialization of:
+C:/Users/remoto/Downloads/MNC_CUDA-master/MNC_CUDA-master/kernel.cu(360): warning : transfer of control bypasses initialization of:
+C:/Users/remoto/Downloads/MNC_CUDA-master/MNC_CUDA-master/kernel.cu(248): warning : transfer of control bypasses initialization of:
+C:/Users/remoto/Downloads/MNC_CUDA-master/MNC_CUDA-master/kernel.cu(255): warning : transfer of control bypasses initialization of:
+C:/Users/remoto/Downloads/MNC_CUDA-master/MNC_CUDA-master/kernel.cu(261): warning : transfer of control bypasses initialization of:
+C:/Users/remoto/Downloads/MNC_CUDA-master/MNC_CUDA-master/kernel.cu(267): warning : transfer of control bypasses initialization of:
+C:/Users/remoto/Downloads/MNC_CUDA-master/MNC_CUDA-master/kernel.cu(274): warning : transfer of control bypasses initialization of:
+C:/Users/remoto/Downloads/MNC_CUDA-master/MNC_CUDA-master/kernel.cu(280): warning : transfer of control bypasses initialization of:
+C:/Users/remoto/Downloads/MNC_CUDA-master/MNC_CUDA-master/kernel.cu(328): warning : transfer of control bypasses initialization of:
+C:/Users/remoto/Downloads/MNC_CUDA-master/MNC_CUDA-master/kernel.cu(335): warning : transfer of control bypasses initialization of:
+C:/Users/remoto/Downloads/MNC_CUDA-master/MNC_CUDA-master/kernel.cu(341): warning : transfer of control bypasses initialization of:
+C:/Users/remoto/Downloads/MNC_CUDA-master/MNC_CUDA-master/kernel.cu(347): warning : transfer of control bypasses initialization of:
+C:/Users/remoto/Downloads/MNC_CUDA-master/MNC_CUDA-master/kernel.cu(354): warning : transfer of control bypasses initialization of:
+C:/Users/remoto/Downloads/MNC_CUDA-master/MNC_CUDA-master/kernel.cu(360): warning : transfer of control bypasses initialization of:
+  kernel.cu
+C:/Users/remoto/Downloads/MNC_CUDA-master/MNC_CUDA-master/kernel.cu(309): warning C4533: la inicialización de 'threadsPerBlock' se omite en 'goto Error'
+  C:/Users/remoto/Downloads/MNC_CUDA-master/MNC_CUDA-master/kernel.cu(284): note: vea la declaración de 'threadsPerBlock'
+  C:/Users/remoto/Downloads/MNC_CUDA-master/MNC_CUDA-master/kernel.cu(309): note: vea la declaración de 'Error'
+C:/Users/remoto/Downloads/MNC_CUDA-master/MNC_CUDA-master/kernel.cu(391): warning C4533: la inicialización de 'dimBlock' se omite en 'goto Error'
+  C:/Users/remoto/Downloads/MNC_CUDA-master/MNC_CUDA-master/kernel.cu(366): note: vea la declaración de 'dimBlock'
+  C:/Users/remoto/Downloads/MNC_CUDA-master/MNC_CUDA-master/kernel.cu(391): note: vea la declaración de 'Error'
+C:/Users/remoto/Downloads/MNC_CUDA-master/MNC_CUDA-master/kernel.cu(391): warning C4533: la inicialización de 'dimGrid' se omite en 'goto Error'
+  C:/Users/remoto/Downloads/MNC_CUDA-master/MNC_CUDA-master/kernel.cu(365): note: vea la declaración de 'dimGrid'
+  C:/Users/remoto/Downloads/MNC_CUDA-master/MNC_CUDA-master/kernel.cu(391): note: vea la declaración de 'Error'
+  practicaCUDA.vcxproj -> C:\Users\remoto\Downloads\MNC_CUDA-master\MNC_CUDA-master\x64\Debug\practicaCUDA.exe
