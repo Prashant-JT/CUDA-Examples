@@ -73,8 +73,6 @@ __global__ void MatrixMultiplicationCuda1(double* c, double* a, double* b, int N
         sum += a[i * N + k] * b[k * N + j];
     }
     c[i * N + j] = sum;
-    //printf("Indice del hilo: (%d, %d, %d) | Indice del bloque: (%d, %d, %d) | Calculando el producto: {%f} * {%f}\n", threadIdx.x, threadIdx.y, threadIdx.z, l, m, n, a[i], b[i]);
-
 }
 
 cudaError_t multWithCuda1(double* c, double* a, double* b, unsigned int size)
@@ -419,10 +417,9 @@ cudaError_t multMatrixwithCuda2(double* c, double* a, double* b, unsigned int si
     double* dev_b = 0;
     double* dev_c = 0;
     int N = size * size;
-    cudaError_t cudaStatus;
 
     // Choose which GPU to run on, change this on a multi-GPU system.
-    cudaStatus = cudaSetDevice(0);
+    cudaError_t cudaStatus = cudaSetDevice(0);
     if (cudaStatus != cudaSuccess) {
         fprintf(stderr, "cudaSetDevice failed!  Do you have a CUDA-capable GPU installed?");
         goto Error;
@@ -488,10 +485,10 @@ cudaError_t multMatrixwithCuda2(double* c, double* a, double* b, unsigned int si
         goto Error;
     }
 
-Error:
-    cudaFree(dev_c);
-    cudaFree(dev_a);
-    cudaFree(dev_b);
+    Error:
+        cudaFree(dev_c);
+        cudaFree(dev_a);
+        cudaFree(dev_b);
 
     return cudaStatus;
 }
